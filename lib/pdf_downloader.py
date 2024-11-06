@@ -38,18 +38,20 @@ def download_pdf(url, filename):
         return False
 
 
-def download_and_save_pdfs(names, urls, cfg, timeout=15):
+def download_and_save_pdfs(names, urls, include, cfg, timeout=15):
     # Set default timeout for downloads
     socket.setdefaulttimeout(timeout)
 
     # Silence command-line output temporarily because pypdf cannot shut up
+    # A little dangerous if something goes wrong
     text_trap = StringIO()
     sys.stdout, sys.stderr = text_trap, text_trap
 
-    names["status"] = "Ikke downloadet"
+    # Iterator of the indexes to include
+    indexes = include.index[include]
 
     # Loop through all names and attempt to download the pdf
-    for index in names.index:
+    for index in indexes:
         pdf_name = None
 
         # Get name for current pdf in order of priority
@@ -85,7 +87,7 @@ def download_and_save_pdfs(names, urls, cfg, timeout=15):
             if pdf_is_corrupt(pdf_path_str):
                 delete_pdf(pdf_path)
             else:
-                names.loc[index, "status"] = "Downloadet"
+                names.loc[index, "_status"] = "Downloadet"
                 break
 
     # Unsilence command-line output

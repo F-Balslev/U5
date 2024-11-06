@@ -24,9 +24,9 @@ def check_valid_columns(cfg_vars, col_names):
                     pe(f"Kolonne {col_name} kunne ikke findes i kildefilen.")
 
 
-def filter_dataframe(name_df, url_df, cfg_vars):
+def dataframe_filter(name_df, url_df, cfg_vars):
     """
-    Filter the dataframes to exclude entries that have already been downloaded or where no URL exists
+    Boolean bataframe exclude entries that have already been downloaded or where no URL exists
     """
     # Existing pdfs filter
     all_paths = Path(cfg_vars["destination_path"]).glob("*.pdf")
@@ -37,9 +37,7 @@ def filter_dataframe(name_df, url_df, cfg_vars):
     missing_urls = url_df.isnull().all(axis="columns")
 
     # Combined filter
-    entries_to_include = ~(missing_urls | file_exists)
-
-    return name_df[entries_to_include], url_df[entries_to_include]
+    return ~(missing_urls | file_exists)
 
 
 def load_dataframes(cfg_vars):
@@ -67,5 +65,8 @@ def load_dataframes(cfg_vars):
     # Return dataframes
     names = df[cfg_vars["name_column"]].copy()
     urls = df[cfg_vars["download_column"]].copy()
+    inclusion_filter = dataframe_filter(names, urls, cfg_vars)
 
-    return filter_dataframe(names, urls, cfg_vars)
+    names["_status"] = "Ikke downloadet"
+
+    return names, urls, inclusion_filter

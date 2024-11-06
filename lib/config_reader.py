@@ -2,6 +2,9 @@ from pathlib import Path
 
 
 def pe(text=None):
+    """
+    Print and exit
+    """
     if text is not None:
         print(text)
 
@@ -18,6 +21,9 @@ def attempt_create_file(file_name):
 
 def read_config_file_to_dict(filename):
     out_vars = {}
+
+    if not Path(filename).is_file():
+        pe("Konfigurationsfilen kunne ikke findes")
 
     with open(filename) as config_file:
         for line in config_file.readlines():
@@ -120,9 +126,7 @@ def str_to_int(index_str: str):
         num += digit
 
     if num > 1000:
-        print(
-            f"Kolonne med {index_str} er behandlet som INDEKS, men er mugligvis NAVN i stedet"
-        )
+        print(f"Kolonne {index_str} er behandlet som INDEKS, men er mugligvis NAVN")
 
     return num - 1
 
@@ -141,9 +145,10 @@ def convert_column_headers(cfg_vars):
 
 def read_config(filename="konfiguration.txt"):
     # Get variables from config file
+    # Consider changing from dict to a dataclass
     config_vars = read_config_file_to_dict(filename)
 
-    # Validate the extraced config variables
+    # Validate the extracted config variables
     validate_config(config_vars)
 
     # Convert column headers to appropriate format

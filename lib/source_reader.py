@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pandas as pd
 
 from lib.config_reader import pe
@@ -20,6 +22,27 @@ def check_valid_columns(cfg_vars, col_names):
             for col_name in cfg_vars[col]:
                 if col_name not in col_names:
                     pe(f"Kolonne {col_name} kunne ikke findes i kildefilen.")
+
+
+def filter_dataframe(name_df, url_df, cfg_vars):
+    """
+    Filter the dataframes to exclude entries that have already been downloaded or where no URL exists
+    """
+    # Existing pdfs filter
+    all_paths = Path(cfg_vars["destination_path"]).glob("*.pdf")
+    existing_file_names = [path.name[:-4] for path in all_paths]
+    file_exists = name_df.isin(existing_file_names).any(axis="columns")
+
+    # Missing urls filter
+    missing_urls = url_df.isnull().all(axis="columns")
+
+    # Combined filter
+    entries_to_include = ~(missing_urls | file_exists)
+
+    name_df[entries_to_include]
+    url_df[entries_to_include]
+
+    return name_df, url_df
 
 
 def load_dataframes(cfg_vars):
@@ -45,4 +68,7 @@ def load_dataframes(cfg_vars):
         ]
 
     # Return dataframes
-    return df[cfg_vars["name_column"]].copy(), df[cfg_vars["download_column"]].copy()
+    names = df[cfg_vars["name_column"]].copy()
+    urls = df[cfg_vars["download_column"]].copy()
+
+    return filter_dataframe(names, urls, cfg_vars)

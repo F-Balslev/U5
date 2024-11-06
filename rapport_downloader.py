@@ -1,8 +1,10 @@
 from lib.config_reader import read_config
 from lib.pdf_downloader import download_and_save_pdfs
 from lib.source_reader import load_dataframes
+from lib.status_writer import write_status_files
 
-if __name__ == "__main__":
+
+def main():
     config_file_name = "konfiguration.txt"
 
     # Load config
@@ -12,4 +14,11 @@ if __name__ == "__main__":
     name_df, url_df = load_dataframes(config)
 
     # Download and save the pdfs
-    download_and_save_pdfs(name_df, url_df)
+    download_and_save_pdfs(name_df, url_df, config)
+
+    # Create a status file
+    write_status_files(name_df, config)
+
+
+if __name__ == "__main__":
+    main()

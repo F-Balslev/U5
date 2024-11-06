@@ -39,10 +39,7 @@ def filter_dataframe(name_df, url_df, cfg_vars):
     # Combined filter
     entries_to_include = ~(missing_urls | file_exists)
 
-    name_df[entries_to_include]
-    url_df[entries_to_include]
-
-    return name_df, url_df
+    return name_df[entries_to_include], url_df[entries_to_include]
 
 
 def load_dataframes(cfg_vars):

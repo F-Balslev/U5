@@ -117,7 +117,7 @@ def str_to_int(index_str: str):
         pe(f"Indeks kunne ikke konverteres: {index_str}")
 
     # Convert from excel column notation to zero-indexed int
-    # AB -> 27
+    # AD -> [1, 4] -> 29
     base26 = [ord(char) - 96 for char in index_str.lower()]
     num = 0
 
@@ -145,7 +145,7 @@ def convert_column_headers(cfg_vars):
 
 def read_config(filename="konfiguration.txt"):
     # Get variables from config file
-    # Consider changing from dict to a dataclass
+    # Consider changing from dict to a dataclass / enum
     config_vars = read_config_file_to_dict(filename)
 
     # Validate the extracted config variables

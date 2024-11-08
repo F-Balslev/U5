@@ -46,3 +46,15 @@ DOWNLOADKOLONNETYPE=INDEKS
 
 THREADS=5
 ```
+
+
+## Installér påkrævede moduler
+
+For at installere de påkrævede moduler køres kommandoen
+```pip install -r requirements.txt``` 
+
+
+## Kør programmet
+
+For at køre programmet køres kommandoen
+```python rapport_downloader.py```

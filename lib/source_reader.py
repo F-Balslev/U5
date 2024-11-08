@@ -24,20 +24,21 @@ def check_valid_columns(cfg_vars, col_names):
                     pe(f"Kolonne {col_name} kunne ikke findes i kildefilen.")
 
 
-def dataframe_filter(name_df, url_df, cfg_vars):
-    """
-    Boolean bataframe exclude entries that have already been downloaded or where no URL exists
-    """
+def files_exist_filter(name_df, cfg_vars):
     # Existing pdfs filter
     all_paths = Path(cfg_vars["destination_path"]).glob("*.pdf")
     existing_file_names = [path.name[:-4] for path in all_paths]
     file_exists = name_df.isin(existing_file_names).any(axis="columns")
 
-    # Missing urls filter
-    missing_urls = url_df.isnull().all(axis="columns")
+    return file_exists
 
-    # Combined filter
-    return ~(missing_urls | file_exists)
+
+def missing_urls_filter(url_df):
+    """
+    Boolean bataframe exclude entries that have already been downloaded or where no URL exists
+    """
+    # Missing urls filter
+    return url_df.isnull().all(axis="columns")
 
 
 def load_dataframes(cfg_vars):
@@ -65,8 +66,13 @@ def load_dataframes(cfg_vars):
     # Return dataframes
     names = df[cfg_vars["name_column"]].copy()
     urls = df[cfg_vars["download_column"]].copy()
-    inclusion_filter = dataframe_filter(names, urls, cfg_vars)
+
+    files_exist = files_exist_filter(names, cfg_vars)
+    missing_urls = missing_urls_filter(urls)
+
+    inclusion_filter = ~(files_exist | missing_urls)
 
     names["_status"] = "Ikke downloadet"
+    names.loc[files_exist, "_status"] = "Downloadet i forvejen"
 
     return names, urls, inclusion_filter

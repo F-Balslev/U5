@@ -20,7 +20,7 @@ def attempt_create_file(file_name):
 
 
 def read_config_file_to_dict(filename):
-    out_vars = {}
+    out_vars = {"num_threads": 10, "timeout": 30}
 
     if not Path(filename).is_file():
         pe("Konfigurationsfilen kunne ikke findes")
@@ -58,6 +58,10 @@ def read_config_file_to_dict(filename):
                     out_vars["download_column_type"] = values
                 case "DOWNLOADKOLONNE":
                     out_vars["download_column"] = values
+                case "TIMEOUT":
+                    out_vars["timeout"] = values
+                case "THREADS":
+                    out_vars["num_threads"] = values
                 case _:  # unexpected variable enountered in config
                     pe(f"Fandt uforventet variabel i konfigurationsfil: {var}")
 
@@ -107,6 +111,18 @@ def validate_config(cfg_vars):
     for col_name_type in ["name_column_type", "download_column_type"]:
         if cfg_vars[col_name_type] not in ["INDEKS", "NAVN"]:
             pe(f"Uforventet kolonnetype for {col_name_type}")
+
+    # Check and convert timeout
+    if cfg_vars["timeout"].isdigit():
+        cfg_vars["timeout"] = int(cfg_vars["timeout"])
+    else:
+        pe(f"Timeout kan kun angives i hele sekunder og ikke {cfg_vars["timeout"]}")
+
+    #  Check and convert num_threads
+    if cfg_vars["num_threads"].isdigit():
+        cfg_vars["num_threads"] = int(cfg_vars["num_threads"])
+    else:
+        pe(f"Threads skal være et heltal og ikke {cfg_vars["num_threads"]}")
 
 
 def str_to_int(index_str: str):

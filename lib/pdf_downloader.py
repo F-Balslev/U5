@@ -43,7 +43,7 @@ def pdf_is_corrupt(filename):
     return could_be_read
 
 
-def download_pdf(url, filename, timeout=15):
+def download_pdf(url, filename, timeout=30):
     try:
         response = requests.get(url, timeout=timeout)
 
@@ -55,7 +55,7 @@ def download_pdf(url, filename, timeout=15):
         return False
 
 
-def process_single_pdf(name, url, cfg_vars, timeout=15):
+def process_single_pdf(name, url, cfg_vars):
     pdf_name = None
 
     # Get name for current pdf in order of priority
@@ -85,7 +85,7 @@ def process_single_pdf(name, url, cfg_vars, timeout=15):
             continue
 
         # Attempt to download pdf from url and save locally
-        download_pdf(pdf_url, pdf_path_str, timeout)
+        download_pdf(pdf_url, pdf_path_str, cfg_vars["timeout"])
 
         # Delete pdf if it's corrupt, otherwise stop attempting more urls
         if pdf_is_corrupt(pdf_path_str):
@@ -96,9 +96,9 @@ def process_single_pdf(name, url, cfg_vars, timeout=15):
     return
 
 
-def download_and_save_pdfs(names, urls, include, cfg, timeout=15, num_threads=10):
+def download_and_save_pdfs(names, urls, include, cfg):
     # Start the pool of workers
-    pool = multiprocessing.Pool(num_threads)
+    pool = multiprocessing.Pool(cfg["num_threads"])
 
     # Iterator of the indexes to include
     indexes = include.index[include]
@@ -111,7 +111,6 @@ def download_and_save_pdfs(names, urls, include, cfg, timeout=15, num_threads=10
                 names.iloc[index],
                 urls.iloc[index],
                 cfg,
-                timeout,
             ),
         )
 
